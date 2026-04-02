@@ -50,7 +50,6 @@ namespace IMGUIZMO_NAMESPACE
    const float screenRotateSize = 0.06f;
    // scale a bit so translate axis do not touch when in universal
    const float rotationDisplayFactor = 1.2f;
-
    static OPERATION operator&(OPERATION lhs, OPERATION rhs)
    {
      return static_cast<OPERATION>(static_cast<int>(lhs) & static_cast<int>(rhs));
@@ -645,6 +644,10 @@ namespace IMGUIZMO_NAMESPACE
       ScaleLineCircleSize        = 6.0f;
       HatchedAxisLineThickness   = 6.0f;
       CenterCircleSize           = 6.0f;
+      TranslationHitTolerance    = 12.0f;
+      RotationHitTolerance       = 8.0f;
+      RotationScreenInnerTolerance = 4.0f;
+      RotationScreenOuterTolerance = 4.0f;
 
       // initialize default colors
       Colors[DIRECTION_X]           = ImVec4(0.666f, 0.000f, 0.000f, 1.000f);
@@ -2033,7 +2036,9 @@ namespace IMGUIZMO_NAMESPACE
 
       vec_t deltaScreen = { io.MousePos.x - gContext.mScreenSquareCenter.x, io.MousePos.y - gContext.mScreenSquareCenter.y, 0.f, 0.f };
       float dist = deltaScreen.Length();
-      if (Intersects(op, ROTATE_SCREEN) && dist >= (gContext.mRadiusSquareCenter - 4.0f) && dist < (gContext.mRadiusSquareCenter + 4.0f))
+      if (Intersects(op, ROTATE_SCREEN) &&
+         dist >= (gContext.mRadiusSquareCenter - gContext.mStyle.RotationScreenInnerTolerance) &&
+         dist < (gContext.mRadiusSquareCenter + gContext.mStyle.RotationScreenOuterTolerance))
       {
          if (!isNoAxesMasked)
             return MT_NONE;
@@ -2074,7 +2079,7 @@ namespace IMGUIZMO_NAMESPACE
          const ImVec2 distanceOnScreen = idealPosOnCircleScreen - io.MousePos;
 
          const float distance = makeVect(distanceOnScreen).Length();
-         if (distance < 8.f) // pixel size
+         if (distance < gContext.mStyle.RotationHitTolerance) // pixel size
          {
             if ((!isAxisMasked || isMultipleAxesMasked) && !isNoAxesMasked)
                break;
@@ -2126,7 +2131,8 @@ namespace IMGUIZMO_NAMESPACE
          const ImVec2 axisEndOnScreen = worldToPos(gContext.mModel.v.position + dirAxis * gContext.mScreenFactor, gContext.mViewProjection) - ImVec2(gContext.mX, gContext.mY);
 
          vec_t closestPointOnAxis = PointOnSegment(screenCoord, makeVect(axisStartOnScreen), makeVect(axisEndOnScreen));
-         if ((closestPointOnAxis - screenCoord).Length() < 12.f && Intersects(op, static_cast<OPERATION>(TRANSLATE_X << i))) // pixel size
+         if ((closestPointOnAxis - screenCoord).Length() < gContext.mStyle.TranslationHitTolerance &&
+            Intersects(op, static_cast<OPERATION>(TRANSLATE_X << i))) // pixel size
          {
             if (isAxisMasked)
                break;

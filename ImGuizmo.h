@@ -298,6 +298,10 @@ namespace IMGUIZMO_NAMESPACE
       float ScaleLineCircleSize;        // Size of circle at the end of lines for scale gizmo
       float HatchedAxisLineThickness;   // Thickness of hatched axis lines
       float CenterCircleSize;           // Size of circle at the center of the translate/scale gizmo
+      float TranslationHitTolerance;    // Pixel tolerance for picking translation axes
+      float RotationHitTolerance;       // Pixel tolerance for picking rotation axes
+      float RotationScreenInnerTolerance; // Inner pixel tolerance for picking screen rotation ring
+      float RotationScreenOuterTolerance; // Outer pixel tolerance for picking screen rotation ring
 
       ImVec4 Colors[COLOR::COUNT];
    };
